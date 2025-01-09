@@ -76,6 +76,10 @@ const reducer = (state: State, event: Event): State => {
       newState.turnNumber += 1;
       break;
     case "draw":
+      if (state.hand.length >= 7) {
+        break;
+      }
+
       newState.hand.push(newState.library[0]);
       newState.library.splice(0, 1);
       break;
@@ -173,7 +177,7 @@ function App() {
           />
         )}
         <div>Hand</div>
-        <div className="flex gap-8 bg-blue-400 min-h-[240px]">
+        <div className="flex gap-8 bg-blue-400 min-h-[240px] overflow-x-auto">
           {state.hand.map((cardId, index) => {
             const card = Deck[cardId];
 
@@ -193,7 +197,10 @@ function App() {
       <div>
         <h2>Battlefield</h2>
 
-        <div className="flex gap-8 bg-blue-400 min-h-[240px]" ref={dropRef}>
+        <div
+          className="flex gap-8 bg-blue-400 min-h-[240px] overflow-x-auto"
+          ref={dropRef}
+        >
           {isOver && <div>Drop Here!</div>}
           {state.battleField.map((cardInstance, index) => {
             const card = Deck[cardInstance.cardID];
