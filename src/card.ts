@@ -10,6 +10,7 @@ export interface State {
   graveyard: number[];
   manaPool: Mana;
   opponentLife: number;
+  turnNumber: number;
 }
 
 export interface Card {
