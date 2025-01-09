@@ -57,6 +57,7 @@ const reducer = (state: State, event: Event): State => {
             break;
           case "instant":
             newState.graveyard.push(cardId);
+            newState = card.effect?.(newState) ?? newState;
             break;
         }
         newState.hand.splice(event.cardIndex, 1);
@@ -70,7 +71,6 @@ const reducer = (state: State, event: Event): State => {
         cardInstance.tapped = true;
 
         const card = Deck[newState.battleField[event.cardIndex].cardID];
-        console.log(card);
         newState = card.effect?.(newState) ?? newState;
       }
       break;
@@ -82,11 +82,12 @@ const reducer = (state: State, event: Event): State => {
 
 const emptyState = (): State => {
   return {
-    library: [0, 1, 2],
+    library: [0, 2],
     hand: [],
     battleField: [],
     graveyard: [],
     manaPool: { red: 0, blue: 0, white: 0, black: 0, green: 0 },
+    opponentLife: 20,
   };
 };
 
@@ -100,6 +101,7 @@ function App() {
       <div>
         <h2>Player 1</h2>
         <div>Number of cards in hands: {state.hand?.length}</div>
+        <div>Opponent Life: {state.opponentLife}</div>
 
         <div>Hand: {JSON.stringify(state.hand)}</div>
         <div>ManaPool: {JSON.stringify(state.manaPool)}</div>

@@ -9,6 +9,7 @@ export interface State {
   battleField: CardInstance[];
   graveyard: number[];
   manaPool: Mana;
+  opponentLife: number;
 }
 
 export interface Card {
@@ -56,6 +57,10 @@ export const Deck: Record<number, Card> = {
       "https://cards.scryfall.io/normal/front/4/e/4eaac4fd-95f5-4f38-b593-0101e79a20f9.jpg?1623945607",
     manaCost: { red: 1, blue: 0, white: 0, black: 0, green: 0 },
     type: "instant",
+    effect: (state) => {
+      state.opponentLife -= 3;
+      return state;
+    },
   },
   // Add a card that deal 2 damage to player
   3: {
