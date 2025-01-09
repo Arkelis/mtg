@@ -54,6 +54,11 @@ const emptyState = (): State => {
         illustration:
           "https://cards.scryfall.io/large/front/d/3/d3740beb-7fa5-4b83-be7d-039750b126c5.jpg?1695483576",
       },
+      {
+        name: "struc",
+        illustration:
+          "https://cards.scryfall.io/large/front/d/3/d3740beb-7fa5-4b83-be7d-039750b126c5.jpg?1695483576",
+      },
     ],
     hand: [],
     battleField: [],
@@ -64,7 +69,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, emptyState());
 
   return (
-    <div>
+    <div className="m-16">
       <h1>Magic</h1>
 
       <div>
