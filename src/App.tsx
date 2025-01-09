@@ -1,26 +1,46 @@
 import { useReducer } from "react";
 import classNames from "classnames";
 import { Card, Deck, Mana, State } from "./card";
+import { useDrag, useDrop } from "react-dnd";
 
 interface CardProp {
+  index?: number;
   card: Card;
   onClick: () => void;
   tapped: boolean;
   isPlayable: boolean;
 }
 
-const CardDisplay = ({ card, onClick, tapped, isPlayable }: CardProp) => (
-  <img
-    className={classNames(
-      isPlayable ? "shadow-lg shadow-green-400" : "",
-      tapped ? "rotate-90" : "",
-      "rounded-md transition duration-300",
-    )}
-    onClick={onClick}
-    width="240"
-    src={card.illustration}
-  />
-);
+const CardDisplay = ({
+  index,
+  card,
+  onClick,
+  tapped,
+  isPlayable,
+}: CardProp) => {
+  const [{ isDragging }, dragRef] = useDrag({
+    type: "card",
+    item: { index, name },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  return (
+    <img
+      ref={dragRef}
+      className={classNames(
+        isPlayable ? "shadow-lg shadow-green-400" : "",
+        tapped ? "rotate-90" : "",
+        isDragging ? "opacity-50" : "",
+        "rounded-md transition duration-300",
+      )}
+      onClick={onClick}
+      width="240"
+      src={card.illustration}
+    />
+  );
+};
 
 type Event =
   | { type: "draw" }
@@ -111,6 +131,14 @@ const emptyManaPool = (): Mana => {
 function App() {
   const [state, dispatch] = useReducer(reducer, emptyState());
 
+  const [{ isOver }, dropRef] = useDrop({
+    accept: "card",
+    drop: (item) => dispatch({ type: "play", cardIndex: item.index }),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
   if (state.opponentLife <= 0) {
     return <div>You win</div>;
   }
@@ -151,6 +179,7 @@ function App() {
 
             return (
               <CardDisplay
+                index={index}
                 onClick={() => dispatch({ type: "play", cardIndex: index })}
                 key={index}
                 card={card}
@@ -164,7 +193,8 @@ function App() {
       <div>
         <h2>Battlefield</h2>
 
-        <div className="flex gap-8 bg-blue-400 min-h-[240px]">
+        <div className="flex gap-8 bg-blue-400 min-h-[240px]" ref={dropRef}>
+          {isOver && <div>Drop Here!</div>}
           {state.battleField.map((cardInstance, index) => {
             const card = Deck[cardInstance.cardID];
 
