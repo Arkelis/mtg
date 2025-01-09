@@ -1,4 +1,20 @@
 import { useReducer } from "react";
+import classNames from "classnames";
+
+interface CardProp {
+  card: Card;
+  onClick: () => void;
+  tapped: boolean;
+}
+
+const CardDisplay = ({ card, onClick, tapped }: CardProp) => (
+  <img
+    className={classNames(tapped ? "rotate-90" : "", "rounded-md")}
+    onClick={onClick}
+    width="240"
+    src={card.illustration}
+  />
+);
 
 interface Card {
   name: string;
@@ -77,40 +93,37 @@ function App() {
         <div>Number of cards in hands: {state.hand?.length}</div>
         <div>Library</div>
         {state.library.length > 0 && (
-          <img
+          <CardDisplay
             onClick={() => dispatch({ type: "draw" })}
-            width="240"
-            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcf.geekdo-images.com%2FCxJmNl4wR4InjqyNrMdBTw__imagepage%2Fimg%2FG185gILyaxGCYka6LwuEhd9--WA%3D%2Ffit-in%2F900x600%2Ffilters%3Ano_upscale()%3Astrip_icc()%2Fpic163749.jpg&f=1&nofb=1&ipt=ef1d15b2acdf88fd24d6dda6143af6585d7b53461f7dc5004496cc960b6850ae&ipo=images"
+            card={{
+              name: "back",
+              illustration:
+                "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcf.geekdo-images.com%2FCxJmNl4wR4InjqyNrMdBTw__imagepage%2Fimg%2FG185gILyaxGCYka6LwuEhd9--WA%3D%2Ffit-in%2F900x600%2Ffilters%3Ano_upscale()%3Astrip_icc()%2Fpic163749.jpg&f=1&nofb=1&ipt=ef1d15b2acdf88fd24d6dda6143af6585d7b53461f7dc5004496cc960b6850ae&ipo=images",
+            }}
+            tapped={false}
           />
         )}
-
         <div>Hand</div>
         {state.hand.map((card, index) => (
-          <img
-            key={index}
+          <CardDisplay
             onClick={() => dispatch({ type: "play", cardIndex: index })}
-            width="240"
-            src={card.illustration}
+            key={index}
+            card={card}
+            tapped={false}
           />
         ))}
       </div>
       <div>
         <h2>Battlefield</h2>
         {state.battleField.map((card, index) => (
-          <img
-            className={card.tapped ? "rotate-90" : ""}
-            key={index}
+          <CardDisplay
             onClick={() => dispatch({ type: "tap", cardIndex: index })}
-            width="240"
-            src={card.illustration}
+            key={index}
+            card={card}
+            tapped={card.tapped}
           />
         ))}
       </div>
-      {/*<div>*/}
-      {/*  <h2>Player 2</h2>*/}
-      {/*  <div>Library</div>*/}
-      {/*  <div>Hand</div>*/}
-      {/*</div>*/}
     </div>
   );
 }
