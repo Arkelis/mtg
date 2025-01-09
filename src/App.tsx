@@ -23,13 +23,10 @@ type Event =
   | { type: "tap"; cardIndex: number };
 
 function checkManaCost(manaPool: Mana, card: Card) {
-  Object.keys(card.manaCost).forEach((color) => {
+  return Object.entries(card.manaCost).every(([color, value]) => {
     const manaColor = color as keyof Mana;
-    if (card.manaCost[manaColor] > manaPool[manaColor]) {
-      return false;
-    }
+    return value <= manaPool[manaColor];
   });
-  return true;
 }
 
 function removeManaCost(manaPool: Mana, card: Card) {
@@ -47,13 +44,21 @@ const reducer = (state: State, event: Event): State => {
   switch (event.type) {
     case "draw":
       newState.hand.push(newState.library[0]);
-      newState.library.pop();
+      newState.library.splice(0, 1);
       break;
     case "play": {
       // TODO: Check cost
-      const card = Deck[newState.hand[event.cardIndex]];
+      const cardId = newState.hand[event.cardIndex];
+      const card = Deck[cardId];
       if (checkManaCost(newState.manaPool, card)) {
-        newState.battleField.push({ cardID: event.cardIndex, tapped: false });
+        switch (card.type) {
+          case "land":
+            newState.battleField.push({ cardID: cardId, tapped: false });
+            break;
+          case "instant":
+            newState.graveyard.push(cardId);
+            break;
+        }
         newState.hand.splice(event.cardIndex, 1);
         removeManaCost(newState.manaPool, card);
       }
@@ -77,9 +82,10 @@ const reducer = (state: State, event: Event): State => {
 
 const emptyState = (): State => {
   return {
-    library: [0, 1],
+    library: [0, 1, 2],
     hand: [],
     battleField: [],
+    graveyard: [],
     manaPool: { red: 0, blue: 0, white: 0, black: 0, green: 0 },
   };
 };
@@ -94,7 +100,10 @@ function App() {
       <div>
         <h2>Player 1</h2>
         <div>Number of cards in hands: {state.hand?.length}</div>
+
+        <div>Hand: {JSON.stringify(state.hand)}</div>
         <div>ManaPool: {JSON.stringify(state.manaPool)}</div>
+        <div>Graveyard: {state.graveyard.length}</div>
         <div>Library</div>
         {state.library.length > 0 && (
           <CardDisplay
@@ -104,6 +113,7 @@ function App() {
               illustration:
                 "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcf.geekdo-images.com%2FCxJmNl4wR4InjqyNrMdBTw__imagepage%2Fimg%2FG185gILyaxGCYka6LwuEhd9--WA%3D%2Ffit-in%2F900x600%2Ffilters%3Ano_upscale()%3Astrip_icc()%2Fpic163749.jpg&f=1&nofb=1&ipt=ef1d15b2acdf88fd24d6dda6143af6585d7b53461f7dc5004496cc960b6850ae&ipo=images",
               manaCost: { red: 0, blue: 0, white: 0, black: 0, green: 0 },
+              type: "back",
             }}
             tapped={false}
           />
